@@ -120,8 +120,7 @@ export default function HSRChatOverlay() {
             console.log('[Firefly Chat] Stream completed. Received length:', fullText.length)
             setIsGenerating(false)
             if (fullText) {
-              const updated = [...useAppStore.getState().messages, { role: 'assistant', content: fullText }]
-              useAppStore.setState({ messages: updated })
+              setStreamedContent(fullText)
             }
             await fetchMessages(activeSessionId)
             await fetchProfile()

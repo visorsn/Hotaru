@@ -371,11 +371,14 @@ async def stream_gemini_reply(
         }
     }
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:streamGenerateContent?alt=sse&key={api_key.strip()}"
+    # Build request url & headers
+    # Note: Google Generative AI API requires ?key=<api_key> or x-goog-api-key header.
+    # Sending 'Authorization: Bearer' triggers OAuth token validation which fails with 401 ACCESS_TOKEN_TYPE_UNSUPPORTED
+    clean_key = api_key.strip()
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:streamGenerateContent?alt=sse&key={clean_key}"
     headers = {
         "Content-Type": "application/json",
-        "x-goog-api-key": api_key.strip(),
-        "Authorization": f"Bearer {api_key.strip()}" if api_key.strip().startswith("AQ.") or api_key.strip().startswith("ya29.") else f"Bearer {api_key.strip()}",
+        "x-goog-api-key": clean_key,
     }
 
     raw_buffer = ""

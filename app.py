@@ -336,11 +336,25 @@ async def stream_gemini_reply(
     session_id: str,
     prompt_user_message: str,
     api_key: str,
-    model_name: str = "gemini-2.0-flash"
+    model_name: str = "gemini-2.5-flash"
 ) -> AsyncGenerator[str, None]:
     system_prompt = load_system_prompt()
     recent = await db_get_messages(session_id)
     await db_insert_message(session_id, "user", prompt_user_message)
+
+    # Clean model identifier
+    clean_model = model_name.strip()
+    if clean_model.startswith("models/"):
+        clean_model = clean_model[7:]
+    
+    # Map common aliases to real Google Gemini models
+    alias_map = {
+        "gemini-3.6": "gemini-2.5-flash",
+        "gemini-3.5": "gemini-2.5-flash",
+        "gemini-3.5-lite": "gemini-2.5-flash-lite",
+        "gemini-3.1-pro": "gemini-2.5-pro",
+    }
+    target_model = alias_map.get(clean_model, clean_model)
 
     # Prepare Gemini multi-turn format
     gemini_contents = []
@@ -365,7 +379,7 @@ async def stream_gemini_reply(
         }
     }
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:streamGenerateContent?alt=sse&key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:streamGenerateContent?alt=sse&key={api_key}"
     raw_buffer = ""
     emotion_sent = False
     emotion_found = "NEUTRAL"

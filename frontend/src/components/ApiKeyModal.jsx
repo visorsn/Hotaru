@@ -126,9 +126,7 @@ export default function ApiKeyModal() {
                   <div
                     key={p.id}
                     onClick={() => {
-                      if (p.id === 'ollama' || p.id === 'gemini') {
-                        setSelectedProvider(p.id)
-                      }
+                      setSelectedProvider(p.id)
                     }}
                     className={`p-6 rounded-2xl cursor-pointer transition-all duration-150 flex flex-col justify-between min-h-[170px] ${
                       isSelected
@@ -193,10 +191,11 @@ export default function ApiKeyModal() {
                     onChange={(e) => setGeminiModelInput(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl bg-[#070b14] border border-slate-700 text-white focus:outline-none focus:border-cyan-400 text-sm"
                   >
-                    <option value="gemini-3.6">gemini-3.6</option>
-                    <option value="gemini-3.5">gemini-3.5</option>
-                    <option value="gemini-3.5-lite">gemini-3.5-lite</option>
-                    <option value="gemini-3.1-pro">gemini-3.1-pro</option>
+                    <option value="gemini-2.5-flash">gemini-2.5-flash (Terbaru & Cepat)</option>
+                    <option value="gemini-2.0-flash">gemini-2.0-flash (Rekomendasi Utama)</option>
+                    <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite (Hemat Kuota / Cepat)</option>
+                    <option value="gemini-1.5-flash">gemini-1.5-flash</option>
+                    <option value="gemini-1.5-pro">gemini-1.5-pro</option>
                   </select>
                 </div>
               </div>

@@ -20,7 +20,7 @@ export const useAppStore = create((set, get) => ({
   aiConfig: {
     provider: localStorage.getItem('firefly_ai_provider') || 'ollama', // 'ollama' | 'gemini'
     geminiApiKey: localStorage.getItem('firefly_gemini_key') || '',
-    geminiModel: localStorage.getItem('firefly_gemini_model') || 'gemini-flash-3.6',
+    geminiModel: localStorage.getItem('firefly_gemini_model') || 'gemini-3.8-flash',
     ollamaUrl: localStorage.getItem('firefly_ollama_url') || 'http://localhost:11434/api/generate',
     ollamaModel: localStorage.getItem('firefly_ollama_model') || 'qwen2.5:3b',
   },

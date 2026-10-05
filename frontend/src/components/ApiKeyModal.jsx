@@ -195,19 +195,30 @@ export default function ApiKeyModal() {
 
                 <div>
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                    Model Gemini (Real Model ID)
+                    Model Gemini
                   </label>
-                  <select
-                    value={geminiModelInput}
-                    onChange={(e) => setGeminiModelInput(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#070b14] border border-slate-700 text-white focus:outline-none focus:border-cyan-400 text-sm"
-                  >
-                    <option value="gemini-flash-3.6">gemini-flash-3.6</option>
-                    <option value="gemini-flash-3.5">gemini-flash-3.5</option>
-                    <option value="gemini-flash-3.5-lite">gemini-flash-3.5-lite</option>
-                    <option value="gemini-pro-3.1">gemini-pro-3.1</option>
-                    <option value="gemini-pro-3.1-lite">gemini-pro-3.1-lite</option>
-                  </select>
+                  <div className="space-y-2">
+                    <select
+                      value={geminiModelInput}
+                      onChange={(e) => setGeminiModelInput(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-xl bg-[#070b14] border border-slate-700 text-white focus:outline-none focus:border-cyan-400 text-sm"
+                    >
+                      <option value="gemini-3.8-flash">gemini-3.8-flash (Rekomendasi)</option>
+                      <option value="gemini-3.7-flash">gemini-3.7-flash</option>
+                      <option value="gemini-3.6-flash">gemini-3.6-flash</option>
+                      <option value="gemini-3.5-flash">gemini-3.5-flash</option>
+                      <option value="gemini-3.5-flash-lite">gemini-3.5-flash-lite</option>
+                      <option value="gemini-3.1-flash-lite">gemini-3.1-flash-lite</option>
+                      <option value="custom">-- Masukkan Model Custom --</option>
+                    </select>
+                    <input
+                      type="text"
+                      value={geminiModelInput}
+                      onChange={(e) => setGeminiModelInput(e.target.value)}
+                      placeholder="Atau ketik nama model (misal: gemini-3.8-flash)"
+                      className="w-full px-4 py-2 rounded-xl bg-[#070b14] border border-slate-800 text-slate-300 text-xs font-mono focus:outline-none focus:border-cyan-400"
+                    />
+                  </div>
                 </div>
               </div>
             ) : (

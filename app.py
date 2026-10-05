@@ -336,7 +336,7 @@ async def stream_gemini_reply(
     session_id: str,
     prompt_user_message: str,
     api_key: str,
-    model_name: str = "gemini-flash-3.6"
+    model_name: str = "gemini-3.8-flash"
 ) -> AsyncGenerator[str, None]:
     system_prompt = load_system_prompt()
     recent = await db_get_messages(session_id)
@@ -489,7 +489,7 @@ async def chat_endpoint(payload: ChatRequest):
     if payload.provider == "gemini":
         if not payload.api_key:
             raise HTTPException(status_code=400, detail="Gemini API Key belum diisi. Masukkan API Key di menu API Key.")
-        model = payload.model or "gemini-flash-3.6"
+        model = payload.model or "gemini-3.8-flash"
         return StreamingResponse(
             stream_gemini_reply(payload.session_id, msg, payload.api_key, model),
             media_type="text/event-stream"
@@ -525,7 +525,7 @@ async def regenerate_endpoint(payload: RegenerateRequest):
     if payload.provider == "gemini":
         if not payload.api_key:
             raise HTTPException(status_code=400, detail="Gemini API Key wajib diisi.")
-        model = payload.model or "gemini-2.0-flash"
+        model = payload.model or "gemini-3.8-flash"
         return StreamingResponse(
             stream_gemini_reply(payload.session_id, last_user_message, payload.api_key, model),
             media_type="text/event-stream"
@@ -694,4 +694,4 @@ async def serve_index():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run("app:app", host="0.0.0.0", port=8000)

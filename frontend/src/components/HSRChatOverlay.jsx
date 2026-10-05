@@ -106,6 +106,10 @@ export default function HSRChatOverlay() {
 
           if (rawData === '[DONE]') {
             setIsGenerating(false)
+            if (fullText) {
+              const updated = [...useAppStore.getState().messages, { role: 'assistant', content: fullText }]
+              useAppStore.setState({ messages: updated })
+            }
             await fetchMessages(activeSessionId)
             await fetchProfile()
             await fetchSessions()

@@ -342,7 +342,7 @@ async def stream_gemini_reply(
     recent = await db_get_messages(session_id)
     await db_insert_message(session_id, "user", prompt_user_message)
 
-    # Clean model identifier - kirim persis real model yang dipilih tanpa mapping alias lama
+    # Clean model identifier
     clean_model = model_name.strip()
     if clean_model.startswith("models/"):
         clean_model = clean_model[7:]
@@ -371,7 +371,13 @@ async def stream_gemini_reply(
         }
     }
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:streamGenerateContent?alt=sse&key={api_key}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/{target_model}:streamGenerateContent?alt=sse&key={api_key.strip()}"
+    headers = {
+        "Content-Type": "application/json",
+        "x-goog-api-key": api_key.strip(),
+        "Authorization": f"Bearer {api_key.strip()}" if api_key.strip().startswith("AQ.") or api_key.strip().startswith("ya29.") else f"Bearer {api_key.strip()}",
+    }
+
     raw_buffer = ""
     emotion_sent = False
     emotion_found = "NEUTRAL"
@@ -379,11 +385,19 @@ async def stream_gemini_reply(
 
     try:
         async with httpx.AsyncClient(timeout=120.0) as client:
-            async with client.stream("POST", url, json=gemini_payload) as response:
+            async with client.stream("POST", url, json=gemini_payload, headers=headers) as response:
                 if response.status_code != 200:
                     err_body = await response.aread()
-                    yield f"data: {json.dumps({'error': f'Gemini API error ({response.status_code}): {err_body.decode()}'})}\n\n"
+                    try:
+                        err_json = json.loads(err_body.decode())
+                        err_msg = err_json.get("error", {}).get("message", err_body.decode())
+                    except Exception:
+                        err_msg = err_body.decode()
+                    
+                    full_reply = f"[Gemini Error {response.status_code}]: {err_msg}"
+                    yield f"data: {json.dumps({'token': full_reply})}\n\n"
                     yield "data: [DONE]\n\n"
+                    await db_insert_message(session_id, "assistant", full_reply, "NEUTRAL")
                     return
 
                 async for line in response.aiter_lines():
@@ -420,19 +434,22 @@ async def stream_gemini_reply(
                                     full_reply += token
                                     yield f"data: {json.dumps({'token': token})}\n\n"
 
-        if not emotion_sent:
+        if not emotion_sent and raw_buffer:
             yield f"data: {json.dumps({'emotion': 'NEUTRAL'})}\n\n"
             full_reply += raw_buffer
             yield f"data: {json.dumps({'token': raw_buffer})}\n\n"
 
-        await db_insert_message(session_id, "assistant", full_reply.strip(), emotion_found)
-        title = prompt_user_message[:36] + ("…" if len(prompt_user_message) > 36 else "")
-        await db_set_title(session_id, title)
-        yield "data: [DONE]\n\n"
+        if full_reply.strip():
+            await db_insert_message(session_id, "assistant", full_reply.strip(), emotion_found)
+            title = prompt_user_message[:36] + ("…" if len(prompt_user_message) > 36 else "")
+            await db_set_title(session_id, title)
+            yield "data: [DONE]\n\n"
 
     except Exception as e:
-        yield f"data: {json.dumps({'error': f'Gemini Error: {str(e)}'})}\n\n"
+        err_text = f"[Request Error]: {str(e)}"
+        yield f"data: {json.dumps({'token': err_text})}\n\n"
         yield "data: [DONE]\n\n"
+        await db_insert_message(session_id, "assistant", err_text, "NEUTRAL")
 
 
 # ---------------------------------------------------------------------

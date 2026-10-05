@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Key, ArrowLeft, Check, Cpu, Globe, Sparkles } from 'lucide-react'
+import { Key, ArrowLeft, Check, Cpu, Globe, Sparkles, Eye, EyeOff } from 'lucide-react'
 import { useAppStore } from '../store/useAppStore'
 
 export default function ApiKeyModal() {
@@ -8,7 +8,8 @@ export default function ApiKeyModal() {
 
   const [selectedProvider, setSelectedProvider] = useState(aiConfig.provider)
   const [geminiKeyInput, setGeminiKeyInput] = useState(aiConfig.geminiApiKey)
-  const [geminiModelInput, setGeminiModelInput] = useState(aiConfig.geminiModel || 'gemini-3.6')
+  const [showGeminiKey, setShowGeminiKey] = useState(false)
+  const [geminiModelInput, setGeminiModelInput] = useState(aiConfig.geminiModel || 'gemini-flash-3.6')
   const [ollamaUrlInput, setOllamaUrlInput] = useState(aiConfig.ollamaUrl)
   const [ollamaModelInput, setOllamaModelInput] = useState(aiConfig.ollamaModel)
   const [saveSuccess, setSaveSuccess] = useState(false)
@@ -170,13 +171,23 @@ export default function ApiKeyModal() {
                   <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                     Google Gemini API Key
                   </label>
-                  <input
-                    type="password"
-                    value={geminiKeyInput}
-                    onChange={(e) => setGeminiKeyInput(e.target.value)}
-                    placeholder="AIzaSy..."
-                    className="w-full px-4 py-2.5 rounded-xl bg-[#070b14] border border-slate-700 text-white focus:outline-none focus:border-cyan-400 font-mono text-sm"
-                  />
+                  <div className="relative flex items-center">
+                    <input
+                      type={showGeminiKey ? 'text' : 'password'}
+                      value={geminiKeyInput}
+                      onChange={(e) => setGeminiKeyInput(e.target.value)}
+                      placeholder="AIzaSy... atau API Key Anda"
+                      className="w-full px-4 py-2.5 pr-11 rounded-xl bg-[#070b14] border border-slate-700 text-white focus:outline-none focus:border-cyan-400 font-mono text-sm"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowGeminiKey(!showGeminiKey)}
+                      className="absolute right-3 text-slate-400 hover:text-slate-200 transition-colors cursor-pointer"
+                      title={showGeminiKey ? 'Sembunyikan API Key' : 'Tampilkan API Key'}
+                    >
+                      {showGeminiKey ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
                   <span className="text-[11px] text-slate-400 mt-1 block">
                     Dapatkan gratis di https://aistudio.google.com/app/apikey
                   </span>

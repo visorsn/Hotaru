@@ -190,12 +190,15 @@ export default function HSRChatOverlay() {
         </form>
       </div>
 
+      {/* Bottom Fade Shadow (Gradient to top) covering bottom dialogue area */}
+      <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[#2a0845]/90 via-[#1b052d]/60 to-transparent pointer-events-none z-20" />
+
       {/* Subtitle Dialogue Section at Bottom Left */}
-      <div className="absolute bottom-12 left-10 right-10 z-30 max-w-4xl">
-        <h2 className="text-4xl font-serif font-bold text-[#fef08a] mb-2 tracking-wide select-none drop-shadow-sm">
+      <div className="absolute bottom-8 left-10 right-10 z-30 max-w-4xl">
+        <h2 className="text-4xl font-serif font-bold text-[#fef08a] mb-2 tracking-wide select-none drop-shadow-md">
           FireFly
         </h2>
-        <p className="text-xl text-[#fef9c3] leading-relaxed max-w-3xl font-sans font-normal drop-shadow">
+        <p className="text-xl text-[#fef9c3] leading-relaxed max-w-3xl font-sans font-normal drop-shadow-md">
           {displayReply}
         </p>
       </div>

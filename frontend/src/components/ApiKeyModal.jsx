@@ -162,8 +162,7 @@ export default function ApiKeyModal() {
 
           {/* Configuration Form */}
           <div className="max-w-2xl p-6 rounded-2xl bg-[#0f172a] border border-slate-700/80">
-            <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-cyan-400" />
+            <h3 className="text-lg font-bold text-white mb-4">
               Konfigurasi Provider: <span className="text-cyan-300 uppercase">{selectedProvider}</span>
             </h3>
 

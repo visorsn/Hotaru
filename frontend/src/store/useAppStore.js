@@ -20,7 +20,7 @@ export const useAppStore = create((set, get) => ({
   aiConfig: {
     provider: localStorage.getItem('firefly_ai_provider') || 'ollama', // 'ollama' | 'gemini'
     geminiApiKey: localStorage.getItem('firefly_gemini_key') || '',
-    geminiModel: localStorage.getItem('firefly_gemini_model') || 'gemini-2.0-flash',
+    geminiModel: localStorage.getItem('firefly_gemini_model') || 'gemini-3.6',
     ollamaUrl: localStorage.getItem('firefly_ollama_url') || 'http://localhost:11434/api/generate',
     ollamaModel: localStorage.getItem('firefly_ollama_model') || 'qwen2.5:3b',
   },
@@ -62,7 +62,7 @@ export const useAppStore = create((set, get) => ({
   sessions: [],
   activeSessionId: null,
   messages: [],
-  currentEmotion: 'NEUTRAL', // 'NEUTRAL' | 'JOY' | 'THINKING' | 'EMPATHY'
+  currentEmotion: 'NEUTRAL',
   isGenerating: false,
   streamedContent: '',
 
@@ -79,7 +79,7 @@ export const useAppStore = create((set, get) => ({
 
   // Audio Settings
   audioConfig: {
-    voice: 'Firefly JP', // 'Firefly JP' | 'Firefly Eng'
+    voice: 'Firefly JP',
     bgmVolume: 50,
     sfxVolume: 80,
     voiceVolume: 100,
@@ -88,7 +88,6 @@ export const useAppStore = create((set, get) => ({
   },
   setAudioConfig: (cfg) => set({ audioConfig: { ...get().audioConfig, ...cfg } }),
 
-  // Fetch initial profile
   fetchProfile: async () => {
     try {
       const res = await fetch('/api/user-profile')
@@ -101,7 +100,6 @@ export const useAppStore = create((set, get) => ({
     }
   },
 
-  // Fetch sessions
   fetchSessions: async () => {
     try {
       const res = await fetch('/api/sessions')
@@ -117,7 +115,6 @@ export const useAppStore = create((set, get) => ({
     }
   },
 
-  // Fetch messages for active session
   fetchMessages: async (sessionId) => {
     if (!sessionId) return
     try {
@@ -131,7 +128,6 @@ export const useAppStore = create((set, get) => ({
     }
   },
 
-  // Fetch persona
   fetchPersona: async () => {
     try {
       const res = await fetch('/api/persona')

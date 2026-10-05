@@ -466,17 +466,27 @@ class ChatRequest(BaseModel):
 
 @app.post("/api/chat")
 async def chat_endpoint(payload: ChatRequest):
+    print(f"[Backend Chat] Request received for session {payload.session_id}, provider={payload.provider}, model={payload.model}, has_key={bool(payload.api_key)}")
     session = await db_get_session(payload.session_id)
     if not session:
-        raise HTTPException(status_code=404, detail="Session tidak ditemukan")
+        # Buat session otomatis jika belum ada di database
+        print(f"[Backend Chat] Session {payload.session_id} not found, auto creating...")
+        def _create_sess():
+            conn = get_db()
+            cur = conn.cursor()
+            cur.execute("INSERT OR IGNORE INTO sessions (id, title) VALUES (?, 'Percakapan baru')", (payload.session_id,))
+            conn.commit()
+            conn.close()
+        await asyncio.to_thread(_create_sess)
+    
     msg = payload.message.strip()
     if not msg:
         return StreamingResponse(iter([""]), media_type="text/event-stream")
 
     if payload.provider == "gemini":
         if not payload.api_key:
-            raise HTTPException(status_code=400, detail="Gemini API Key wajib diisi.")
-        model = payload.model or "gemini-2.0-flash"
+            raise HTTPException(status_code=400, detail="Gemini API Key belum diisi. Masukkan API Key di menu API Key.")
+        model = payload.model or "gemini-flash-3.6"
         return StreamingResponse(
             stream_gemini_reply(payload.session_id, msg, payload.api_key, model),
             media_type="text/event-stream"

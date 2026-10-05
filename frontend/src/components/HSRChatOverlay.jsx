@@ -65,6 +65,14 @@ export default function HSRChatOverlay() {
     setIsGenerating(true)
     setStreamedContent('')
 
+    console.log('[Firefly Chat] Sending payload:', {
+      session_id: activeSessionId,
+      message: userText,
+      provider: aiConfig.provider,
+      hasApiKey: !!aiConfig.geminiApiKey,
+      model: aiConfig.provider === 'gemini' ? aiConfig.geminiModel : aiConfig.ollamaModel,
+    })
+
     const tempMessages = [...messages, { role: 'user', content: userText }]
     useAppStore.setState({ messages: tempMessages })
 
@@ -84,9 +92,13 @@ export default function HSRChatOverlay() {
         body: JSON.stringify(payload),
       })
 
+      console.log('[Firefly Chat] HTTP response status:', response.status)
+
       if (!response.ok) {
-        const errJson = await response.json()
-        throw new Error(errJson.detail || 'Gagal mengirim pesan')
+        const errJson = await response.json().catch(() => ({}))
+        const errorMsg = errJson.detail || `Server error (Status: ${response.status})`
+        console.error('[Firefly Chat Error]:', errorMsg)
+        throw new Error(errorMsg)
       }
 
       const reader = response.body.getReader()
@@ -105,6 +117,7 @@ export default function HSRChatOverlay() {
           const rawData = line.replace('data: ', '').trim()
 
           if (rawData === '[DONE]') {
+            console.log('[Firefly Chat] Stream completed. Received length:', fullText.length)
             setIsGenerating(false)
             if (fullText) {
               const updated = [...useAppStore.getState().messages, { role: 'assistant', content: fullText }]
@@ -118,6 +131,7 @@ export default function HSRChatOverlay() {
 
           try {
             const parsed = JSON.parse(rawData)
+            console.log('[Firefly Chat Chunk]:', parsed)
             if (parsed.emotion) {
               setCurrentEmotion(parsed.emotion)
             }
@@ -126,14 +140,21 @@ export default function HSRChatOverlay() {
               setStreamedContent(fullText)
             }
             if (parsed.error) {
+              console.error('[Firefly Chat Backend Error]:', parsed.error)
               fullText += `\n[Error: ${parsed.error}]`
               setStreamedContent(fullText)
             }
-          } catch (err) {}
+          } catch (err) {
+            console.warn('[Firefly Chat Parse Warning]:', rawData)
+          }
         }
       }
     } catch (err) {
-      setStreamedContent(`Maaf, terjadi kesalahan: ${err.message}`)
+      console.error('[Firefly Chat Exception]:', err)
+      const errorReply = `[Error]: ${err.message}`
+      setStreamedContent(errorReply)
+      const updated = [...useAppStore.getState().messages, { role: 'assistant', content: errorReply }]
+      useAppStore.setState({ messages: updated })
       setIsGenerating(false)
     }
   }
